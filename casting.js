@@ -1,9 +1,8 @@
-
 (() => {
   const root = document.getElementById('castingCalculator');
   if (!root) return;
 
-  const state = { magnesiumPercent: 100, elements: [] };
+  const state = { elements: [] };
   const catalog = [['Al','铝'],['Zn','锌'],['Mn','锰'],['Ca','钙'],['Zr','锆'],['Si','硅'],['Sn','锡'],['Li','锂'],['Y','钇'],['Nd','钕'],['Gd','钆'],['Cu','铜'],['Ag','银'],['Sr','锶']];
   const rows = document.getElementById('castingRows');
   const select = document.getElementById('castingElementSelect');
@@ -14,6 +13,7 @@
   const message = document.getElementById('castingMessage');
   const resultBody = document.getElementById('castingResultBody');
   const totalOutput = document.getElementById('castingTotal');
+
   catalog.forEach(([symbol, name]) => {
     const option = document.createElement('option');
     option.value = symbol;
@@ -21,9 +21,13 @@
     select.append(option);
   });
 
+  function magnesiumPercent() {
+    return Math.max(0, 100 - state.elements.reduce((sum, item) => sum + item.percent, 0));
+  }
+
   function renderRows() {
     rows.replaceChildren();
-    const all = [{ symbol: 'Mg', name: '镁', percent: state.magnesiumPercent, fixed: true }, ...state.elements];
+    const all = [{ symbol: 'Mg', name: '镁', percent: magnesiumPercent(), fixed: true }, ...state.elements];
     all.forEach(item => {
       const row = document.createElement('div');
       row.className = 'casting-row';
@@ -36,13 +40,23 @@
       inputWrap.className = 'casting-percent';
       inputWrap.innerHTML = '<span>wt.%</span><input type="number" min="0" max="100" step="0.01" inputmode="decimal" aria-label="' + item.name + ' wt.%">';
       const input = inputWrap.querySelector('input');
-      input.value = String(item.percent);
-      input.addEventListener('input', () => {
-        const percent = input.value === '' ? 0 : Number(input.value);
-        if (item.fixed) state.magnesiumPercent = percent;
-        else item.percent = percent;
-        calculate();
-      });
+      input.value = item.percent.toFixed(2);
+      if (item.fixed) {
+        input.readOnly = true;
+        input.setAttribute('aria-label', '镁 wt.%（由其他元素比例自动补足至 100%）');
+        input.title = 'Mg 自动补足到 100 wt.%';
+      } else {
+        input.max = (100 - (state.elements.reduce((sum, element) => sum + element.percent, 0) - item.percent)).toFixed(2);
+        input.addEventListener('input', () => {
+          const otherTotal = state.elements.reduce((sum, element) => sum + (element === item ? 0 : element.percent), 0);
+          const max = Math.max(0, 100 - otherTotal);
+          const raw = input.value === '' ? 0 : Number(input.value);
+          item.percent = Math.min(max, Math.max(0, Number.isFinite(raw) ? raw : 0));
+          if (raw !== item.percent) input.value = item.percent.toFixed(2);
+          renderRows();
+          calculate();
+        });
+      }
       row.append(name, inputWrap);
       if (!item.fixed) {
         const remove = document.createElement('button');
@@ -76,19 +90,13 @@
   }
 
   function calculate() {
-    const all = [{ symbol: 'Mg', name: '镁', percent: state.magnesiumPercent }, ...state.elements];
-    const totalPercent = all.reduce((sum, item) => sum + (Number(item.percent) || 0), 0);
+    const mgPct = magnesiumPercent();
+    const all = [{ symbol: 'Mg', name: '镁', percent: mgPct }, ...state.elements];
+    const totalPercent = all.reduce((sum, item) => sum + item.percent, 0);
     sumOutput.textContent = totalPercent.toFixed(2) + ' wt.%';
-    const validPercentages = all.every(item => Number.isFinite(Number(item.percent)) && Number(item.percent) >= 0 && Number(item.percent) <= 100);
     const amount = Number(amountInput.value);
-    if (!validPercentages) {
-      message.textContent = '每种元素的 wt.% 必须在 0 到 100 之间。';
-      message.className = 'casting-message error';
-      showNoResult();
-      return;
-    }
-    if (Math.abs(totalPercent - 100) > 0.01) {
-      message.textContent = '当前成分合计 ' + totalPercent.toFixed(2) + ' wt.%；请调整到 100 wt.% 后再计算。';
+    if (Math.abs(totalPercent - 100) > 0.000001) {
+      message.textContent = '成分合计需为 100 wt.%；Mg 会自动补足剩余比例。';
       message.className = 'casting-message error';
       showNoResult();
       return;
@@ -100,17 +108,23 @@
       return;
     }
     const mode = modeSelect.value;
-    const magnesiumMass = mode === 'target' ? amount * state.magnesiumPercent / 100 : amount;
-    const theoreticalTotal = mode === 'target' ? amount : magnesiumMass / (state.magnesiumPercent / 100);
+    const magnesiumMass = mode === 'target' ? amount * mgPct / 100 : amount;
+    const theoreticalTotal = mode === 'target' ? amount : (mgPct > 0 ? magnesiumMass / (mgPct / 100) : NaN);
+    if (!Number.isFinite(theoreticalTotal)) {
+      message.textContent = 'Mg 比例为 0%，无法根据 Mg 重量反算铸锭总重。请降低其他元素的合计比例。';
+      message.className = 'casting-message error';
+      showNoResult();
+      return;
+    }
     resultBody.replaceChildren();
     all.forEach(item => {
       const tr = document.createElement('tr');
       const elementCell = document.createElement('td');
       elementCell.textContent = item.name + ' (' + item.symbol + ')';
       const percentCell = document.createElement('td');
-      percentCell.textContent = Number(item.percent).toFixed(2) + '%';
+      percentCell.textContent = item.percent.toFixed(2) + '%';
       const massCell = document.createElement('td');
-      const mass = mode === 'target' ? theoreticalTotal * Number(item.percent) / 100 : (item.symbol === 'Mg' ? magnesiumMass : theoreticalTotal * Number(item.percent) / 100);
+      const mass = mode === 'target' ? theoreticalTotal * item.percent / 100 : (item.symbol === 'Mg' ? magnesiumMass : theoreticalTotal * item.percent / 100);
       massCell.textContent = mass.toFixed(4) + ' g';
       tr.append(elementCell, percentCell, massCell);
       resultBody.append(tr);
@@ -123,7 +137,9 @@
   addButton.addEventListener('click', () => {
     const item = catalog.find(entry => entry[0] === select.value);
     if (!item || state.elements.some(element => element.symbol === item[0])) return;
-    state.elements.push({ symbol: item[0], name: item[1], percent: 0 });
+    const remaining = magnesiumPercent();
+    const initialPercent = Math.min(5, remaining);
+    state.elements.push({ symbol: item[0], name: item[1], percent: initialPercent });
     renderRows();
     calculate();
   });
