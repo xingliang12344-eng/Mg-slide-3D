@@ -40,20 +40,25 @@
   }
 
   function calculate() {
-    const volumeMl = Number(fields.volume.value);
-    const tempC = Number(fields.temperature.value);
-    const totalPressureKpa = Number(fields.pressure.value);
-    const timeValue = Number(fields.time.value);
+    const volumeValue = fields.volume.value.trim();
+    const temperatureValue = fields.temperature.value.trim();
+    const pressureValue = fields.pressure.value.trim();
+    const timeInputValue = fields.time.value.trim();
+    const mgPercentValue = fields.mgPercent.value.trim();
+    const volumeMl = Number(volumeValue);
+    const tempC = Number(temperatureValue);
+    const totalPressureKpa = Number(pressureValue);
+    const timeValue = Number(timeInputValue);
     const timeHours = timeValue * (fields.timeUnit.value === 'day' ? 24 : 1);
-    const mgPercent = Number(fields.mgPercent.value);
+    const mgPercent = Number(mgPercentValue);
     const areaValue = fields.area.value.trim();
     const areaCm2 = areaValue === '' ? null : Number(areaValue);
     const valuesValid =
-      Number.isFinite(volumeMl) && volumeMl > 0 &&
-      Number.isFinite(tempC) && tempC >= -20 && tempC <= 50 &&
-      Number.isFinite(totalPressureKpa) && totalPressureKpa > 0 &&
-      Number.isFinite(timeHours) && timeHours > 0 &&
-      Number.isFinite(mgPercent) && mgPercent > 0 && mgPercent <= 100 &&
+      volumeValue !== '' && Number.isFinite(volumeMl) && volumeMl > 0 &&
+      temperatureValue !== '' && Number.isFinite(tempC) && tempC >= -20 && tempC <= 50 &&
+      pressureValue !== '' && Number.isFinite(totalPressureKpa) && totalPressureKpa > 0 &&
+      timeInputValue !== '' && Number.isFinite(timeHours) && timeHours > 0 &&
+      mgPercentValue !== '' && Number.isFinite(mgPercent) && mgPercent > 0 && mgPercent <= 100 &&
       (areaCm2 === null || (Number.isFinite(areaCm2) && areaCm2 > 0));
     if (!valuesValid) {
       outputs.message.textContent = '请填写有效数据：氢气体积、腐蚀时间和 Mg 含量须大于 0；Mg 含量不能超过 100%。温度范围为 −20 至 50 °C。';
