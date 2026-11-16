@@ -3,7 +3,17 @@
   if (!root) return;
 
   const state = { elements: [] };
-  const catalog = [['Al','铝'],['Zn','锌'],['Mn','锰'],['Ca','钙'],['Zr','锆'],['Si','硅'],['Sn','锡'],['Li','锂'],['Y','钇'],['Nd','钕'],['Gd','钆'],['Cu','铜'],['Ag','银'],['Sr','锶']];
+  const catalog = [
+    ['H','氢'],['He','氦'],
+    ['Li','锂'],['Be','铍'],['B','硼'],['C','碳'],['N','氮'],['O','氧'],['F','氟'],['Ne','氖'],
+    ['Na','钠'],['Mg','镁'],['Al','铝'],['Si','硅'],['P','磷'],['S','硫'],['Cl','氯'],['Ar','氩'],
+    ['K','钾'],['Ca','钙'],['Sc','钪'],['Ti','钛'],['V','钒'],['Cr','铬'],['Mn','锰'],['Fe','铁'],['Co','钴'],['Ni','镍'],['Cu','铜'],['Zn','锌'],['Ga','镓'],['Ge','锗'],['As','砷'],['Se','硒'],['Br','溴'],['Kr','氪'],
+    ['Rb','铷'],['Sr','锶'],['Y','钇'],['Zr','锆'],['Nb','铌'],['Mo','钼'],['Tc','锝'],['Ru','钌'],['Rh','铑'],['Pd','钯'],['Ag','银'],['Cd','镉'],['In','铟'],['Sn','锡'],['Sb','锑'],['Te','碲'],['I','碘'],['Xe','氙'],
+    ['Cs','铯'],['Ba','钡'],
+    ['Hf','铪'],['Ta','钽'],['W','钨'],['Re','铼'],['Os','锇'],['Ir','铱'],['Pt','铂'],['Au','金'],['Hg','汞'],['Tl','铊'],['Pb','铅'],['Bi','铋'],['Po','钋'],['At','砹'],['Rn','氡'],
+    ['Fr','钫'],['Ra','镭'],
+    ['Rf','Rutherfordium'],['Db','Dubnium'],['Sg','Seaborgium'],['Bh','Bohrium'],['Hs','Hassium'],['Mt','Meitnerium'],['Ds','Darmstadtium'],['Rg','Roentgenium'],['Cn','Copernicium'],['Nh','Nihonium'],['Fl','Flerovium'],['Mc','Moscovium'],['Lv','Livermorium'],['Ts','Tennessine'],['Og','Oganesson']
+  ];
   const rows = document.getElementById('castingRows');
   const select = document.getElementById('castingElementSelect');
   const addButton = document.getElementById('addCastingElement');
