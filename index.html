@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#101a26" />
+  <meta name="theme-color" content="#0c141d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Mg-Slip 3D" />
+  <link rel="apple-touch-icon" href="./icon.svg" />
   <meta name="description" content="交互式 HCP 镁晶体滑移系与 IPF 三维可视化工具" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
@@ -15,7 +19,7 @@
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="#" aria-label="Mg-Slip 3D 首页"><span class="brand-mark">Mg</span><span><b>Mg-Slip</b><small>CRYSTAL LAB · 3D</small></span></a>
-      <div class="top-actions"><span class="status-dot">LIVE MODEL</span><button id="installBtn" class="icon-button" aria-label="安装到桌面" title="安装到桌面" hidden>↓</button><button id="resetView" class="icon-button" aria-label="重置视角" title="重置视角">⟳</button></div>
+      <div class="top-actions"><span class="status-dot">LIVE MODEL</span><button id="installBtn" class="icon-button" aria-label="安装到桌面" title="安装到桌面" hidden>＋</button><button id="resetView" class="icon-button" aria-label="重置视角" title="重置视角">⟳</button></div>
     </header>
     <section class="heading"><div><p class="eyebrow">HEXAGONAL CLOSE-PACKED · Mg</p><h1>滑移系可视化</h1><p class="subtitle">在晶体坐标中探索晶面、晶向与取向关系</p></div><div class="phase-tag"><span>α</span> HCP</div></section>
     <section class="workspace">
@@ -54,6 +58,7 @@
     </section>
     <footer><span>Mg-SLIP 3D <i>·</i> INTERACTIVE CRYSTALOGRAPHY</span><span>Three.js · HCP magnesium model</span></footer>
   </main>
-  <script type="module" src="./app.js?v=6"></script>
+  <script type="module" src="./app.js?v=7"></script>
+<dialog id="installGuide" class="install-guide" aria-labelledby="installGuideTitle"><div class="install-guide-icon">Mg</div><h2 id="installGuideTitle">添加 Mg-Slip 3D</h2><p>在 Safari 底部点<strong>分享</strong>，选择<strong>添加到主屏幕</strong>，即可像应用一样打开。</p><button id="closeInstallGuide" type="button">知道了</button></dialog>
 </body>
 </html>
