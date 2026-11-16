@@ -53,7 +53,7 @@
           const raw = input.value === '' ? 0 : Number(input.value);
           item.percent = Math.min(max, Math.max(0, Number.isFinite(raw) ? raw : 0));
           if (raw !== item.percent) input.value = item.percent.toFixed(2);
-          renderRows();
+          syncCompositionInputs();
           calculate();
         });
       }
@@ -82,6 +82,17 @@
     [...select.options].forEach(option => { option.disabled = used.has(option.value); });
     select.value = [...select.options].find(option => !option.disabled)?.value || '';
     addButton.disabled = !select.value;
+  }
+
+  function syncCompositionInputs() {
+    const inputs = rows.querySelectorAll('.casting-percent input');
+    if (inputs[0]) inputs[0].value = magnesiumPercent().toFixed(2);
+    state.elements.forEach((item, index) => {
+      const input = inputs[index + 1];
+      if (!input) return;
+      const otherTotal = state.elements.reduce((sum, element) => sum + (element === item ? 0 : element.percent), 0);
+      input.max = Math.max(0, 100 - otherTotal).toFixed(2);
+    });
   }
 
   function showNoResult() {
@@ -138,6 +149,11 @@
     const item = catalog.find(entry => entry[0] === select.value);
     if (!item || state.elements.some(element => element.symbol === item[0])) return;
     const remaining = magnesiumPercent();
+    if (remaining <= 0) {
+      message.textContent = '当前 Mg 比例已为 0%，请先调低其他元素比例后再添加元素。';
+      message.className = 'casting-message error';
+      return;
+    }
     const initialPercent = Math.min(5, remaining);
     state.elements.push({ symbol: item[0], name: item[1], percent: initialPercent });
     renderRows();
