@@ -11,7 +11,7 @@
   <meta name="description" content="交互式 HCP 镁晶体滑移系与 IPF 三维可视化工具" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="./styles.css?v=2" />
+  <link rel="stylesheet" href="./styles.css?v=3" />
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}</script>
   <title>Mg-Slip 3D · 镁晶体实验台</title>
 </head>
@@ -122,14 +122,47 @@
       </div>
     </section>
     <section class="data-row">
-      <div class="data-card ipf-card"><div class="card-heading"><div><p class="eyebrow">ORIENTATION MAP</p><h2>HCP IPF 标准三角形</h2></div><span class="badge">[u v t w]</span></div><div class="ipf-content"><div class="triangle-wrap"><svg id="ipfSvg" viewBox="0 0 220 172" role="img" aria-label="HCP IPF 标准三角形"><path d="M28 145 L192 145 L110 27 Z" fill="rgba(77,211,183,.06)" stroke="#6c7f89" stroke-width="1.5"/><path d="M28 145 L110 27" stroke="#31434c" stroke-dasharray="3 4"/><path d="M192 145 L110 27" stroke="#31434c" stroke-dasharray="3 4"/><text x="18" y="163">[0001]</text><text x="175" y="163">[1̄010]</text><text x="91" y="17">[2̄110]</text><circle id="ipfPoint" cx="110" cy="80" r="6" fill="#54d9bd" stroke="#e6fff9" stroke-width="2"/><circle id="ipfHalo" cx="110" cy="80" r="13" fill="#54d9bd" opacity=".12"/></svg><div class="triangle-caption">m̄3m · HCP fundamental zone</div></div><div class="orientation-readout"><span class="readout-label">晶向位置</span><strong id="ipfCoords">IPF · —</strong><span id="ipfDescription" class="readout-note">由晶向映射至标准三角形</span><div class="readout-rule"></div><span class="readout-label">晶体对称性</span><strong>6/mmm</strong></div></div></div>
+      <div class="data-card saed-card">
+        <div class="card-heading"><div><p class="eyebrow">ELECTRON DIFFRACTION</p><h2>HCP SAED 斑点模拟</h2></div><span class="badge">Miller–Bravais (hkil)</span></div>
+        <p class="saed-subtitle">电子束沿所选晶面的法向入射，显示倒易点阵零阶 Laue 区。</p>
+        <div class="saed-controls">
+          <label class="saed-field">晶面预设<select id="saedPreset">
+            <option value="custom" selected>自定义晶面</option>
+            <option value="0,0,0,1">基面 (0001)</option>
+            <option value="1,0,-1,0">柱面 (10-10)</option>
+            <option value="1,1,-2,0">二阶柱面 (11-20)</option>
+            <option value="1,0,-1,1">一阶锥面 (10-11)</option>
+            <option value="1,1,-2,2">二阶锥面 (11-22)</option>
+          </select></label>
+          <label class="saed-field">晶面指数 (h k i l)<input id="saedPlane" type="text" value="0 0 0 1" aria-label="输入 HCP 晶面四指数 h k i l"></label>
+          <label class="saed-field">指数范围<select id="saedRange"><option value="2">±2</option><option value="3" selected>±3</option><option value="4">±4</option><option value="5">±5</option></select></label>
+        </div>
+        <small id="saedError" class="error saed-error"></small>
+        <div class="saed-pattern-heading"><span>倒易点阵截面 · 理想运动学近似</span><span id="saedSpotCount">—</span></div>
+        <svg id="saedPattern" viewBox="0 0 480 350" role="img" aria-label="HCP 选区电子衍射斑点图">
+          <rect x="1" y="1" width="478" height="348" rx="12" class="saed-plot-bg"></rect>
+          <line x1="240" y1="20" x2="240" y2="330" class="saed-axis"></line>
+          <line x1="22" y1="175" x2="458" y2="175" class="saed-axis"></line>
+          <circle cx="240" cy="175" r="5" class="saed-direct-beam"></circle>
+          <g id="saedSpots"></g>
+        </svg>
+        <div class="saed-readouts">
+          <div><span>选中斑点指数</span><strong id="saedReflection">—</strong></div>
+          <div><span>对应面间距 d</span><strong id="saedSpacing">—</strong></div>
+          <div><span>电子束方向（晶体坐标）</span><strong id="saedBeamDirection">—</strong></div>
+        </div>
+        <div class="saed-list-label">可见反射 · 点击指数或斑点查看</div>
+        <div id="saedSpotList" class="saed-spot-list" aria-label="衍射反射指数列表"></div>
+        <p class="saed-note">本模拟给出理想 HCP 晶格的斑点位置与四指数标注；两原子基元仅用于显示简化相对选择规则，不代表真实电子衍射强度。样品厚度、动态散射、倾转与仪器参数会改变实验图样。</p>
+      </div>
       <div class="data-card info-card"><div class="card-heading"><div><p class="eyebrow">SLIP SYSTEM</p><h2>几何关系</h2></div><span class="live-badge"><i></i> 实时</span></div><div class="metric"><span>晶面法向 n</span><strong id="normalValue">[0, 0, 1]</strong></div><div class="metric"><span>晶向 d</span><strong id="directionValue">[1, 1, −2, 0]</strong></div><div class="metric"><span>面内关系</span><strong id="relationValue" class="relation">—</strong></div><div class="metric"><span>晶格参数</span><strong>a = 3.209 Å <em>c = 5.211 Å</em></strong></div><div class="angle-box"><span>面法向与晶向夹角</span><strong id="angleValue">—</strong></div><div class="angle-box schmid-result"><span>Schmid 因子 |(n·L)(d·L)|</span><strong id="schmidResult">—</strong></div></div>
     </section>
     <footer><span>Mg-SLIP 3D <i>·</i> INTERACTIVE CRYSTALOGRAPHY</span><span>Three.js · HCP magnesium model</span></footer>
   </main>
   <script src="./casting.js?v=2"></script>
   <script src="./corrosion.js?v=2"></script>
-  <script type="module" src="./app.js?v=7"></script>
+  <script src="./saed.js?v=1"></script>
+  <script type="module" src="./app.js?v=8"></script>
 <dialog id="installGuide" class="install-guide" aria-labelledby="installGuideTitle"><div class="install-guide-icon">Mg</div><h2 id="installGuideTitle">添加 Mg-Slip 3D</h2><p>在 Safari 底部点<strong>分享</strong>，选择<strong>添加到主屏幕</strong>，即可像应用一样打开。</p><button id="closeInstallGuide" type="button">知道了</button></dialog>
 </body>
 </html>
