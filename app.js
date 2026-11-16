@@ -83,3 +83,18 @@ function exportData(format){
 document.querySelector('#exportJson').addEventListener('click',()=>exportData('json'));
 document.querySelector('#exportCsv').addEventListener('click',()=>exportData('csv'));
 updateSchmid();
+
+
+// iOS Safari does not dispatch beforeinstallprompt; explain its native Add to Home Screen flow.
+const isAppleTouch=/iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const installGuide=document.querySelector('#installGuide');
+if(isAppleTouch&&!window.matchMedia('(display-mode: standalone)').matches){
+  installBtn.hidden=false;
+  installBtn.textContent='＋';
+  installBtn.setAttribute('aria-label','添加到主屏幕');
+  installBtn.title='添加到主屏幕';
+}
+installBtn.addEventListener('click',()=>{
+  if(isAppleTouch&&!installEvent&&installGuide?.showModal)installGuide.showModal();
+});
+document.querySelector('#closeInstallGuide')?.addEventListener('click',()=>installGuide.close());
