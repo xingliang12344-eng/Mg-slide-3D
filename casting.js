@@ -1,13 +1,10 @@
+
 (() => {
   const root = document.getElementById('castingCalculator');
   if (!root) return;
 
-  const state = { elements: [] };
-  const catalog = [
-    ['Al','铝'],['Zn','锌'],['Mn','锰'],['Ca','钙'],['Zr','锆'],
-    ['Si','硅'],['Sn','锡'],['Li','锂'],['Y','钇'],['Nd','钕'],
-    ['Gd','钆'],['Cu','铜'],['Ag','银'],['Sr','锶']
-  ];
+  const state = { magnesiumPercent: 100, elements: [] };
+  const catalog = [['Al','铝'],['Zn','锌'],['Mn','锰'],['Ca','钙'],['Zr','锆'],['Si','硅'],['Sn','锡'],['Li','锂'],['Y','钇'],['Nd','钕'],['Gd','钆'],['Cu','铜'],['Ag','银'],['Sr','锶']];
   const rows = document.getElementById('castingRows');
   const select = document.getElementById('castingElementSelect');
   const addButton = document.getElementById('addCastingElement');
@@ -17,7 +14,6 @@
   const message = document.getElementById('castingMessage');
   const resultBody = document.getElementById('castingResultBody');
   const totalOutput = document.getElementById('castingTotal');
-
   catalog.forEach(([symbol, name]) => {
     const option = document.createElement('option');
     option.value = symbol;
@@ -27,8 +23,8 @@
 
   function renderRows() {
     rows.replaceChildren();
-    const all = [{ symbol: 'Mg', name: '镁', percent: 100, fixed: true }, ...state.elements];
-    all.forEach((item, index) => {
+    const all = [{ symbol: 'Mg', name: '镁', percent: state.magnesiumPercent, fixed: true }, ...state.elements];
+    all.forEach(item => {
       const row = document.createElement('div');
       row.className = 'casting-row';
       const name = document.createElement('div');
@@ -38,12 +34,13 @@
       name.querySelector('.casting-name').textContent = item.name;
       const inputWrap = document.createElement('label');
       inputWrap.className = 'casting-percent';
-      inputWrap.innerHTML = '<span>wt.%</span><input type="number" min="0" max="100" step="0.01" inputmode="decimal" aria-label="wt.%">';
+      inputWrap.innerHTML = '<span>wt.%</span><input type="number" min="0" max="100" step="0.01" inputmode="decimal" aria-label="' + item.name + ' wt.%">';
       const input = inputWrap.querySelector('input');
-      input.value = item.fixed ? '100' : String(item.percent);
-      input.disabled = item.fixed;
+      input.value = String(item.percent);
       input.addEventListener('input', () => {
-        item.percent = input.value === '' ? 0 : Number(input.value);
+        const percent = input.value === '' ? 0 : Number(input.value);
+        if (item.fixed) state.magnesiumPercent = percent;
+        else item.percent = percent;
         calculate();
       });
       row.append(name, inputWrap);
@@ -73,37 +70,38 @@
     addButton.disabled = !select.value;
   }
 
+  function showNoResult() {
+    resultBody.replaceChildren();
+    totalOutput.textContent = '—';
+  }
+
   function calculate() {
-    const all = [{ symbol: 'Mg', name: '镁', percent: 100 }, ...state.elements];
+    const all = [{ symbol: 'Mg', name: '镁', percent: state.magnesiumPercent }, ...state.elements];
     const totalPercent = all.reduce((sum, item) => sum + (Number(item.percent) || 0), 0);
     sumOutput.textContent = totalPercent.toFixed(2) + ' wt.%';
     const validPercentages = all.every(item => Number.isFinite(Number(item.percent)) && Number(item.percent) >= 0 && Number(item.percent) <= 100);
     const amount = Number(amountInput.value);
-    const validAmount = Number.isFinite(amount) && amount > 0;
-    const balanced = Math.abs(totalPercent - 100) <= 0.01;
     if (!validPercentages) {
       message.textContent = '每种元素的 wt.% 必须在 0 到 100 之间。';
       message.className = 'casting-message error';
       showNoResult();
       return;
     }
-    if (!balanced) {
+    if (Math.abs(totalPercent - 100) > 0.01) {
       message.textContent = '当前成分合计 ' + totalPercent.toFixed(2) + ' wt.%；请调整到 100 wt.% 后再计算。';
       message.className = 'casting-message error';
       showNoResult();
       return;
     }
-    if (!validAmount) {
+    if (!Number.isFinite(amount) || amount <= 0) {
       message.textContent = '请输入大于 0 的重量。';
       message.className = 'casting-message error';
       showNoResult();
       return;
     }
     const mode = modeSelect.value;
-    const totalMass = mode === 'target' ? amount : amount / (100 / 100);
-    const batchTotal = mode === 'target' ? amount : amount / (100 / 100);
-    const magnesiumMass = mode === 'target' ? totalMass * (all[0].percent / 100) : amount;
-    const actualTotal = mode === 'target' ? totalMass : magnesiumMass / (all[0].percent / 100);
+    const magnesiumMass = mode === 'target' ? amount * state.magnesiumPercent / 100 : amount;
+    const theoreticalTotal = mode === 'target' ? amount : magnesiumMass / (state.magnesiumPercent / 100);
     resultBody.replaceChildren();
     all.forEach(item => {
       const tr = document.createElement('tr');
@@ -112,40 +110,29 @@
       const percentCell = document.createElement('td');
       percentCell.textContent = Number(item.percent).toFixed(2) + '%';
       const massCell = document.createElement('td');
-      const mass = item.symbol === 'Mg' ? magnesiumMass : actualTotal * (Number(item.percent) / 100);
+      const mass = mode === 'target' ? theoreticalTotal * Number(item.percent) / 100 : (item.symbol === 'Mg' ? magnesiumMass : theoreticalTotal * Number(item.percent) / 100);
       massCell.textContent = mass.toFixed(4) + ' g';
       tr.append(elementCell, percentCell, massCell);
       resultBody.append(tr);
     });
-    totalOutput.textContent = actualTotal.toFixed(4) + ' g';
-    message.textContent = mode === 'target'
-      ? '已按目标铸锭重量换算理论投料量。'
-      : '已按 Mg 实际称量反算其他元素及理论铸锭总重。';
+    totalOutput.textContent = theoreticalTotal.toFixed(4) + ' g';
+    message.textContent = mode === 'target' ? '已按目标铸锭重量换算理论投料量。' : '已按 Mg 实际称量反算其他元素及理论铸锭总重。';
     message.className = 'casting-message success';
   }
 
-  function showNoResult() {
-    resultBody.replaceChildren();
-    totalOutput.textContent = '—';
-  }
-
   addButton.addEventListener('click', () => {
-    const symbol = select.value;
-    const item = catalog.find(entry => entry[0] === symbol);
-    if (!item || state.elements.some(element => element.symbol === symbol)) return;
+    const item = catalog.find(entry => entry[0] === select.value);
+    if (!item || state.elements.some(element => element.symbol === item[0])) return;
     state.elements.push({ symbol: item[0], name: item[1], percent: 0 });
     renderRows();
     calculate();
   });
   modeSelect.addEventListener('change', () => {
-    const isTarget = modeSelect.value === 'target';
-    document.getElementById('castingAmountLabel').textContent = isTarget ? '目标铸锭重量' : '实际 Mg 称量';
-    document.getElementById('castingAmountUnit').textContent = 'g';
-    amountInput.value = isTarget ? '100' : '100';
+    document.getElementById('castingAmountLabel').textContent = modeSelect.value === 'target' ? '目标铸锭重量' : '实际 Mg 称量';
+    amountInput.value = '100';
     calculate();
   });
   amountInput.addEventListener('input', calculate);
-
   renderRows();
   calculate();
 })();
