@@ -59,9 +59,12 @@ function updateSchmid(){
     out.textContent=result.textContent='—';return;
   }
   crystal.rotation.set(...orientationFields.map(e=>THREE.MathUtils.degToRad(Number(e.value))),'XYZ');
+  const crystalNormal=millerPlaneNormal(...plane).normalize();
+  const crystalDirection=millerDirection(...dir).normalize();
+  if(Math.abs(crystalNormal.dot(crystalDirection))>0.01){out.textContent=result.textContent='方向不在该晶面内';return;}
   const q=crystal.quaternion;
-  const n=millerPlaneNormal(...plane).normalize().applyQuaternion(q).normalize();
-  const d=millerDirection(...dir).normalize().applyQuaternion(q).normalize();
+  const n=crystalNormal.clone().applyQuaternion(q).normalize();
+  const d=crystalDirection.clone().applyQuaternion(q).normalize();
   const L=p3(...load).normalize();
   const signed=n.dot(L)*d.dot(L), absolute=Math.abs(signed);
   out.textContent=result.textContent=absolute.toFixed(4)+(signed<0?' (负号表示方向)':'');
