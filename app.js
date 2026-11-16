@@ -45,3 +45,38 @@ function resize(){const w=root.clientWidth,h=root.clientHeight;if(!w||!h)return;
 renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera);});
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 let installEvent;const installBtn=document.querySelector('#installBtn');window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvent=e;installBtn.hidden=false;});installBtn.addEventListener('click',async()=>{if(!installEvent)return;installEvent.prompt();await installEvent.userChoice;installEvent=null;installBtn.hidden=true;});
+
+
+// Local orientation and Schmid-factor tools. No server or materials database is used.
+const orientationFields=['#rotX','#rotY','#rotZ'].map(s=>document.querySelector(s));
+const loadFields=['#loadX','#loadY','#loadZ'].map(s=>document.querySelector(s));
+function updateSchmid(){
+  const plane=fourField(document.querySelector('#planeInput').value);
+  const dir=fourField(document.querySelector('#directionInput').value);
+  const load=loadFields.map(e=>Number(e.value));
+  const out=document.querySelector('#schmidValue'), result=document.querySelector('#schmidResult');
+  if(orientationFields.some(e=>!Number.isFinite(Number(e.value)))||load.some(v=>!Number.isFinite(v))||Math.hypot(...load)<1e-12||!plane||!dir||!plane.some(Boolean)||!dir.some(Boolean)){
+    out.textContent=result.textContent='—';return;
+  }
+  crystal.rotation.set(...orientationFields.map(e=>THREE.MathUtils.degToRad(Number(e.value))),'XYZ');
+  const q=crystal.quaternion;
+  const n=millerPlaneNormal(...plane).normalize().applyQuaternion(q).normalize();
+  const d=millerDirection(...dir).normalize().applyQuaternion(q).normalize();
+  const L=p3(...load).normalize();
+  const signed=n.dot(L)*d.dot(L), absolute=Math.abs(signed);
+  out.textContent=result.textContent=absolute.toFixed(4)+(signed<0?' (负号表示方向)':'');
+  document.querySelector('#normalValue').textContent=`[${n.x.toFixed(3)}, ${n.y.toFixed(3)}, ${n.z.toFixed(3)}] 样品坐标`;
+}
+[...orientationFields,...loadFields].forEach(e=>e.addEventListener('input',updateSchmid));
+document.querySelectorAll('.input-group input').forEach(e=>e.addEventListener('input',updateSchmid));
+document.querySelectorAll('.presets button').forEach(e=>e.addEventListener('click',updateSchmid));
+function exportData(format){
+  const data={system:'HCP Mg',plane:document.querySelector('#planeInput').value,direction:document.querySelector('#directionInput').value,orientationXYZ_deg:orientationFields.map(e=>Number(e.value)),loadDirection_sample:loadFields.map(e=>Number(e.value)),schmidFactor:document.querySelector('#schmidValue').textContent,convention:'m=|(n·L)(d·L)|; vectors normalized; XYZ crystal-to-sample rotation',note:'Geometric Schmid factor only; does not predict activation or phase stability.'};
+  let body,name,type;
+  if(format==='json'){body=JSON.stringify(data,null,2);name='mg-slip-result.json';type='application/json';}
+  else {body='system,plane,direction,rotation_xyz_deg,load_direction_sample,schmid_factor,convention\n'+[data.system,data.plane,data.direction,data.orientationXYZ_deg.join(' '),data.loadDirection_sample.join(' '),data.schmidFactor,JSON.stringify(data.convention)].map(v=>`"${String(v).replaceAll('"','""')}"`).join(',');name='mg-slip-result.csv';type='text/csv';}
+  const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([body],{type}));link.download=name;link.click();URL.revokeObjectURL(link.href);
+}
+document.querySelector('#exportJson').addEventListener('click',()=>exportData('json'));
+document.querySelector('#exportCsv').addEventListener('click',()=>exportData('csv'));
+updateSchmid();
