@@ -52,12 +52,37 @@
         <div class="export-actions"><button id="exportJson" type="button">导出 JSON</button><button id="exportCsv" type="button">导出 CSV</button></div>
       </aside>
     </section>
+    <section class="casting-section" id="castingCalculator" aria-labelledby="castingTitle">
+      <div class="casting-heading">
+        <div><p class="eyebrow">CASTING BATCH CALCULATOR</p><h2 id="castingTitle">铸造配料</h2><p class="casting-subtitle">输入合金成分（wt.%），按目标铸锭重量或实际 Mg 称量计算投料。</p></div>
+        <span class="casting-unit-badge">单位 · wt.% / g</span>
+      </div>
+      <div class="casting-layout">
+        <div class="casting-card">
+          <div class="casting-controls">
+            <label class="casting-field">计算方式<select id="castingMode"><option value="target">按目标铸锭重量计算</option><option value="magnesium">按实际 Mg 称量反算</option></select></label>
+            <label class="casting-field"><span id="castingAmountLabel">目标铸锭重量</span><div class="casting-amount"><input id="castingAmount" type="number" min="0" step="0.1" inputmode="decimal" value="100"><span id="castingAmountUnit">g</span></div></label>
+          </div>
+          <div class="casting-composition-heading"><div><h3>合金成分</h3><p>Mg 为必选元素；其他元素可按需添加。</p></div><span id="castingSum" class="casting-sum">100.00 wt.%</span></div>
+          <div id="castingRows" class="casting-rows"></div>
+          <div class="casting-add-row"><select id="castingElementSelect" aria-label="选择添加的合金元素"></select><button id="addCastingElement" type="button">＋ 添加元素</button></div>
+          <p id="castingMessage" class="casting-message" role="status" aria-live="polite"></p>
+          <p class="casting-note">理论投料不含熔炼损耗、氧化、挥发及扒渣影响；实际铸锭重量可能低于理论值。</p>
+        </div>
+        <div class="casting-card casting-results">
+          <div class="casting-result-top"><div><p class="eyebrow">BATCH SUMMARY</p><h3>理论投料清单</h3></div><span class="casting-live">实时计算</span></div>
+          <div class="casting-total-label">理论铸锭总重</div><div id="castingTotal" class="casting-total">—</div>
+          <div class="casting-table-wrap"><table class="casting-table"><thead><tr><th>元素</th><th>成分</th><th>称量</th></tr></thead><tbody id="castingResultBody"></tbody></table></div>
+        </div>
+      </div>
+    </section>
     <section class="data-row">
       <div class="data-card ipf-card"><div class="card-heading"><div><p class="eyebrow">ORIENTATION MAP</p><h2>HCP IPF 标准三角形</h2></div><span class="badge">[u v t w]</span></div><div class="ipf-content"><div class="triangle-wrap"><svg id="ipfSvg" viewBox="0 0 220 172" role="img" aria-label="HCP IPF 标准三角形"><path d="M28 145 L192 145 L110 27 Z" fill="rgba(77,211,183,.06)" stroke="#6c7f89" stroke-width="1.5"/><path d="M28 145 L110 27" stroke="#31434c" stroke-dasharray="3 4"/><path d="M192 145 L110 27" stroke="#31434c" stroke-dasharray="3 4"/><text x="18" y="163">[0001]</text><text x="175" y="163">[1̄010]</text><text x="91" y="17">[2̄110]</text><circle id="ipfPoint" cx="110" cy="80" r="6" fill="#54d9bd" stroke="#e6fff9" stroke-width="2"/><circle id="ipfHalo" cx="110" cy="80" r="13" fill="#54d9bd" opacity=".12"/></svg><div class="triangle-caption">m̄3m · HCP fundamental zone</div></div><div class="orientation-readout"><span class="readout-label">晶向位置</span><strong id="ipfCoords">IPF · —</strong><span id="ipfDescription" class="readout-note">由晶向映射至标准三角形</span><div class="readout-rule"></div><span class="readout-label">晶体对称性</span><strong>6/mmm</strong></div></div></div>
       <div class="data-card info-card"><div class="card-heading"><div><p class="eyebrow">SLIP SYSTEM</p><h2>几何关系</h2></div><span class="live-badge"><i></i> 实时</span></div><div class="metric"><span>晶面法向 n</span><strong id="normalValue">[0, 0, 1]</strong></div><div class="metric"><span>晶向 d</span><strong id="directionValue">[1, 1, −2, 0]</strong></div><div class="metric"><span>面内关系</span><strong id="relationValue" class="relation">—</strong></div><div class="metric"><span>晶格参数</span><strong>a = 3.209 Å <em>c = 5.211 Å</em></strong></div><div class="angle-box"><span>面法向与晶向夹角</span><strong id="angleValue">—</strong></div><div class="angle-box schmid-result"><span>Schmid 因子 |(n·L)(d·L)|</span><strong id="schmidResult">—</strong></div></div>
     </section>
     <footer><span>Mg-SLIP 3D <i>·</i> INTERACTIVE CRYSTALOGRAPHY</span><span>Three.js · HCP magnesium model</span></footer>
   </main>
+  <script src="./casting.js?v=1"></script>
   <script type="module" src="./app.js?v=7"></script>
 <dialog id="installGuide" class="install-guide" aria-labelledby="installGuideTitle"><div class="install-guide-icon">Mg</div><h2 id="installGuideTitle">添加 Mg-Slip 3D</h2><p>在 Safari 底部点<strong>分享</strong>，选择<strong>添加到主屏幕</strong>，即可像应用一样打开。</p><button id="closeInstallGuide" type="button">知道了</button></dialog>
 </body>
