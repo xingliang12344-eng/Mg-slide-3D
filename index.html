@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#101a26" />
+  <meta name="description" content="交互式 HCP 镁晶体滑移系与 IPF 三维可视化工具" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css" />
+  <title>Mg-Slip 3D · 镁晶体实验台</title>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Mg-Slip 3D 首页"><span class="brand-mark">Mg</span><span><b>Mg-Slip</b><small>CRYSTAL LAB · 3D</small></span></a>
+      <div class="top-actions"><span class="status-dot">LIVE MODEL</span><button id="installBtn" class="icon-button" aria-label="安装到桌面" title="安装到桌面" hidden>↓</button><button id="resetView" class="icon-button" aria-label="重置视角" title="重置视角">⟳</button></div>
+    </header>
+    <section class="heading"><div><p class="eyebrow">HEXAGONAL CLOSE-PACKED · Mg</p><h1>滑移系可视化</h1><p class="subtitle">在晶体坐标中探索晶面、晶向与取向关系</p></div><div class="phase-tag"><span>α</span> HCP</div></section>
+    <section class="workspace">
+      <div class="viewer-card">
+        <div class="viewer-label"><span class="live-dot"></span> 3D CRYSTAL VIEW <span class="viewer-hint">拖动旋转 · 双指缩放</span></div>
+        <div id="scene" class="scene" aria-label="镁晶体三维模型"></div>
+        <div class="axis-legend"><span><i class="axis-a"></i>a₁</span><span><i class="axis-b"></i>a₂</span><span><i class="axis-c"></i>c</span></div>
+        <div class="view-controls"><button id="view3d" class="selected">3D</button><button id="viewTop">俯视</button><button id="viewSide">侧视</button></div>
+      </div>
+      <aside class="control-card">
+        <div class="section-title"><span class="number">01</span><div><h2>滑移参数</h2><p>四指数 Miller–Bravais notation</p></div></div>
+        <div class="input-group"><label for="planeInput">晶面指数 <span class="notation">(h k i l)</span></label><div class="index-input"><input id="planeInput" value="0 0 0 1" aria-label="晶面指数 h k i l"><span class="index-type plane-chip">PLANE</span></div><small id="planeError" class="error"></small></div>
+        <div class="input-group"><label for="directionInput">晶向指数 <span class="notation">[u v t w]</span></label><div class="index-input"><input id="directionInput" value="1 1 -2 0" aria-label="晶向指数 u v t w"><span class="index-type direction-chip">DIRECTION</span></div><small id="directionError" class="error"></small></div>
+        <div class="presets"><span>常见滑移系</span><button data-plane="0 0 0 1" data-dir="1 1 -2 0">基面 ⟨a⟩</button><button data-plane="1 0 -1 0" data-dir="1 1 -2 0">柱面 ⟨a⟩</button><button data-plane="1 0 -1 1" data-dir="1 1 -2 3">锥面 ⟨c+a⟩</button></div>
+        <div class="divider"></div>
+        <div class="section-title layers-title"><span class="number">02</span><div><h2>显示图层</h2><p>独立控制场景元素</p></div></div>
+        <div class="layer-list">
+          <label class="layer-row"><span class="layer-icon atoms-icon">·</span><span class="layer-name">镁原子</span><input type="checkbox" data-layer="atoms" checked><i class="switch"></i></label>
+          <label class="layer-row"><span class="layer-icon cell-icon">⬡</span><span class="layer-name">晶胞边界</span><input type="checkbox" data-layer="cell" checked><i class="switch"></i></label>
+          <label class="layer-row"><span class="layer-icon basal-icon">▱</span><span class="layer-name">基面</span><input type="checkbox" data-layer="basal" checked><i class="switch"></i></label>
+          <label class="layer-row"><span class="layer-icon plane-icon">▱</span><span class="layer-name">输入晶面</span><input type="checkbox" data-layer="plane" checked><i class="switch"></i></label>
+          <label class="layer-row"><span class="layer-icon direction-icon">↗</span><span class="layer-name">输入晶向</span><input type="checkbox" data-layer="direction" checked><i class="switch"></i></label>
+        </div>
+      </aside>
+    </section>
+    <section class="data-row">
+      <div class="data-card ipf-card"><div class="card-heading"><div><p class="eyebrow">ORIENTATION MAP</p><h2>HCP IPF 标准三角形</h2></div><span class="badge">[u v t w]</span></div><div class="ipf-content"><div class="triangle-wrap"><svg id="ipfSvg" viewBox="0 0 220 172" role="img" aria-label="HCP IPF 标准三角形"><path d="M28 145 L192 145 L110 27 Z" fill="rgba(77,211,183,.06)" stroke="#6c7f89" stroke-width="1.5"/><path d="M28 145 L110 27" stroke="#31434c" stroke-dasharray="3 4"/><path d="M192 145 L110 27" stroke="#31434c" stroke-dasharray="3 4"/><text x="18" y="163">[0001]</text><text x="175" y="163">[1̄010]</text><text x="91" y="17">[2̄110]</text><circle id="ipfPoint" cx="110" cy="80" r="6" fill="#54d9bd" stroke="#e6fff9" stroke-width="2"/><circle id="ipfHalo" cx="110" cy="80" r="13" fill="#54d9bd" opacity=".12"/></svg><div class="triangle-caption">m̄3m · HCP fundamental zone</div></div><div class="orientation-readout"><span class="readout-label">晶向位置</span><strong id="ipfCoords">IPF · —</strong><span id="ipfDescription" class="readout-note">由晶向映射至标准三角形</span><div class="readout-rule"></div><span class="readout-label">晶体对称性</span><strong>6/mmm</strong></div></div></div>
+      <div class="data-card info-card"><div class="card-heading"><div><p class="eyebrow">SLIP SYSTEM</p><h2>几何关系</h2></div><span class="live-badge"><i></i> 实时</span></div><div class="metric"><span>晶面法向 n</span><strong id="normalValue">[0, 0, 1]</strong></div><div class="metric"><span>晶向 d</span><strong id="directionValue">[1, 1, −2, 0]</strong></div><div class="metric"><span>面内关系</span><strong id="relationValue" class="relation">—</strong></div><div class="metric"><span>晶格参数</span><strong>a = 3.209 Å <em>c = 5.211 Å</em></strong></div><div class="angle-box"><span>面法向与晶向夹角</span><strong id="angleValue">—</strong></div></div>
+    </section>
+    <footer><span>Mg-SLIP 3D <i>·</i> INTERACTIVE CRYSTALOGRAPHY</span><span>Three.js · HCP magnesium model</span></footer>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
