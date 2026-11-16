@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101a26">
+  <meta name="description" content="Mg-A-B 三元相图科研模块">
+  <title>Mg-Ternary · 三元相图</title>
+  <link rel="stylesheet" href="./ternary.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="./index.html"><span class="mark">Mg</span><span><b>Mg-Ternary</b><small>CALPHAD · PHASE DIAGRAM LAB</small></span></a>
+      <a class="back" href="./index.html">← 返回 Mg-Slip 3D</a>
+    </header>
+
+    <section class="intro">
+      <div><p class="eyebrow">TERNARY EQUILIBRIUM · Mg FIXED</p><h1>Mg 基三元相图</h1>
+      <p class="sub">选择 A、B 元素，设置温度并查询指定成分的平衡相与来源。</p></div>
+      <span class="status">科研数据模式</span>
+    </section>
+
+    <section class="layout">
+      <aside class="panel controls">
+        <h2>计算条件</h2>
+        <label>元素 A<select id="elementA"><option>Al</option><option>Zn</option><option>Ca</option><option>Bi</option><option>Sb</option><option>Mn</option><option>Si</option></select></label>
+        <label>元素 B<select id="elementB"><option>Zn</option><option>Ca</option><option>Al</option><option>Bi</option><option>Sb</option><option>Mn</option><option>Si</option></select></label>
+        <div class="divider"></div>
+        <div class="range-head"><label for="temperature">温度</label><strong><span id="tempValue">400</span> °C</strong></div>
+        <input id="temperature" type="range" min="200" max="700" step="5" value="400">
+        <div class="range-labels"><span>200 °C</span><span>700 °C</span></div>
+        <label>压力
+          <select id="pressure"><option value="101325">1 atm (101325 Pa)</option><option value="100000">100 kPa</option></select>
+        </label>
+        <div class="divider"></div>
+        <h3>成分点（wt.%）</h3>
+        <div class="composition"><label> A <input id="aComp" type="number" min="0" max="100" step="0.1" value="5"></label>
+          <label> B <input id="bComp" type="number" min="0" max="100" step="0.1" value="5"></label></div>
+        <p class="hint">Mg 为余量。A + B 不得超过 100 wt.%。</p>
+        <button id="locate" class="primary">在三角图中定位成分</button>
+        <button id="reset" class="secondary">重置成分</button>
+      </aside>
+
+      <section class="panel diagram-panel">
+        <div class="panel-head"><div><h2>等温成分三角形</h2><p id="systemName">Mg–Al–Zn</p></div><span class="temp-chip" id="tempChip">400 °C</span></div>
+        <div class="triangle-box">
+          <svg id="triangle" viewBox="0 0 600 500" role="img" aria-label="Mg-A-B 三元成分三角形">
+            <defs><pattern id="grid" width="1" height="1"><path d="" /></pattern></defs>
+            <path class="tri-fill" d="M300 45 L70 430 L530 430 Z"/>
+            <g id="gridLines"></g>
+            <path class="tri-edge" d="M300 45 L70 430 L530 430 Z"/>
+            <text x="300" y="24" class="vertex" text-anchor="middle">Mg (100%)</text>
+            <text id="labelA" x="48" y="455" class="vertex" text-anchor="start">Al (100%)</text>
+            <text id="labelB" x="552" y="455" class="vertex" text-anchor="end">Zn (100%)</text>
+            <g id="pointGroup"><circle id="pointHalo" cx="300" cy="430" r="15"/><circle id="point" cx="300" cy="430" r="7"/></g>
+          </svg>
+        </div>
+        <p class="hint">当前显示的是成分坐标框架，不代表任何真实相区。加载并验证热力学数据库后才会计算相区。</p>
+        <div class="legend"><span><i class="dot"></i> 当前选择成分</span><span><i class="outline"></i> Mg–A–B 成分边界</span></div>
+      </section>
+    </section>
+
+    <section class="panel result">
+      <div class="result-head"><div><p class="eyebrow">EQUILIBRIUM & TRACEABILITY</p><h2>平衡相与数据来源</h2></div><span class="not-ready">尚未连接热力学数据库</span></div>
+      <div class="notice"><b>尚无可验证的计算结果</b><p>本模块目前仅提供成分点、温度和来源信息的交互界面。未加载与当前 Mg–A–B 体系匹配且许可明确的 TDB 数据库，因此不会猜测相区、相组成或相分数。</p></div>
+      <div class="source-grid">
+        <div><span class="field">体系</span><strong id="systemReadout">Mg–Al–Zn</strong></div>
+        <div><span class="field">温度 / 压力</span><strong id="conditionReadout">400 °C / 101325 Pa</strong></div>
+        <div><span class="field">成分（wt.%）</span><strong id="compositionReadout">Mg 90.0 · Al 5.0 · Zn 5.0</strong></div>
+        <div><span class="field">数据库 / 版本</span><strong>未加载</strong></div>
+        <div><span class="field">计算引擎</span><strong>待接入 PyCalphad</strong></div>
+        <div><span class="field">验证状态</span><strong>无计算结果，未验证</strong></div>
+      </div>
+      <div class="source-links"><span>体系文献入口（并不等同于本机已加载数据库）：</span>
+        <a href="https://doi.org/10.2320/jinstmet.JBW201905" target="_blank" rel="noopener">Al–Mg–Zn 热力学分析 · DOI</a>
+        <a href="https://doi.org/10.1016/j.calphad.2014.03.003" target="_blank" rel="noopener">Mg–Ca–Zn 热力学评估 · DOI</a>
+        <a href="https://pycalphad.org/docs/latest/reference/calphad_databases.html" target="_blank" rel="noopener">PyCalphad 数据库说明</a>
+      </div>
+    </section>
+    <footer>Mg-Ternary · CALPHAD results must retain database identity, model, conditions and literature provenance.</footer>
+  </main>
+  <script src="./ternary.js"></script>
+</body>
+</html>
