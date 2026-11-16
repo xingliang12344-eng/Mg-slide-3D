@@ -6,3 +6,54 @@
 
 
 .triple-input{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px}.triple-input label{color:#9eafb2;font-size:9px}.triple-input input{display:block;width:100%;margin-top:5px;padding:8px 6px;border:1px solid #30414a;border-radius:7px;background:#0d171f;color:#eef4f2;font:11px var(--mono)}.schmid-inline{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:10px;background:#1b2d34;border:1px solid #2b4a47;border-radius:8px;color:#9ab0ae;font-size:10px}.schmid-inline strong{font:15px var(--mono);color:#68dfbf}.export-actions{display:flex;gap:8px}.export-actions button{flex:1;border:1px solid #30414a;background:#1b2a34;color:#b9cdca;padding:8px 6px;border-radius:7px;font-size:10px;cursor:pointer}.schmid-result{border-color:#2b4a47}.schmid-result strong{color:#68dfbf}
+
+/* Mobile-first polish and safe-area handling */
+:root{scroll-padding-top:76px}html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}body{min-height:100dvh;overscroll-behavior-y:contain}.viewer-card,.control-card,.data-card{box-shadow:0 16px 38px #00000020}.topbar{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}button,input{font:inherit}button:focus-visible,input:focus-visible{outline:2px solid #55d9bd;outline-offset:2px}
+.install-guide{width:min(340px,calc(100vw - 36px));border:1px solid #36504e;border-radius:22px;padding:28px;background:linear-gradient(150deg,#192a34,#0f1a24);color:#eef4f2;box-shadow:0 24px 80px #0009}.install-guide::backdrop{background:#071019b8;backdrop-filter:blur(5px)}.install-guide-icon{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,#1b5549,#12322e);border:1px solid #3c8a76;color:#8bf1d3;font:18px var(--mono)}.install-guide h2{margin:20px 0 8px;font-size:20px}.install-guide p{color:#a7b8bb;line-height:1.8;font-size:14px}.install-guide p strong{color:#74e1c2}.install-guide button{width:100%;min-height:46px;border:0;border-radius:12px;background:linear-gradient(110deg,#65dfbd,#46bbab);color:#08221d;font-weight:800;cursor:pointer}
+@media(max-width:760px){
+ .app-shell{padding:0 18px calc(18px + env(safe-area-inset-bottom))}
+ .topbar{position:sticky;top:0;z-index:10;height:64px;margin:0 -18px;padding:0 18px;background:#0c141ddd;border-bottom:1px solid #ffffff12}
+ .brand-mark{width:40px;height:40px;border-radius:14px}
+ .status-dot{display:none}
+ .heading{padding:24px 2px 18px;align-items:center}
+ h1{font-size:clamp(24px,6vw,30px)}
+ .subtitle{max-width:30ch;line-height:1.6}
+ .phase-tag{flex:none}
+ .workspace{grid-template-columns:1fr;gap:14px}
+ .viewer-card{height:min(52dvh,470px);min-height:320px;max-height:none;border-radius:20px}
+ .viewer-label{top:16px;left:16px}
+ .viewer-hint{display:block;margin:7px 0 0 14px}
+ .view-controls{bottom:14px;right:14px;padding:4px;border-radius:12px}
+ .view-controls button{min-width:46px;min-height:42px;font-size:12px}
+ .axis-legend{bottom:23px;left:16px}
+ .control-card{padding:21px;border-radius:20px}
+ .section-title h2{font-size:16px}
+ .section-title p{font-size:11px}
+ .input-group{margin-top:18px}
+ .index-input input{height:48px;font-size:16px}
+ .presets{gap:8px}
+ .presets>span{width:100%;font-size:11px}
+ .presets button{min-height:42px;padding:9px 11px;border-radius:10px;font-size:11px}
+ .layer-row{min-height:44px}
+ .layer-name{font-size:12px}
+ .triple-input{gap:9px}
+ .triple-input label{font-size:11px}
+ .triple-input input{min-height:46px;padding:10px 8px;font-size:16px;border-radius:10px}
+ .schmid-inline{min-height:50px;font-size:11px}
+ .export-actions button{min-height:44px;border-radius:10px;font-size:12px}
+ .data-row{grid-template-columns:1fr;gap:14px;margin-top:14px}
+ .data-card{padding:20px;border-radius:18px}
+ footer{height:auto;min-height:58px;gap:8px;flex-wrap:wrap;padding:15px 2px calc(14px + env(safe-area-inset-bottom));line-height:1.5}
+}
+@media(max-width:390px){
+ .app-shell{padding-left:12px;padding-right:12px}
+ .topbar{margin-left:-12px;margin-right:-12px;padding-left:12px;padding-right:12px}
+ .heading{padding-top:20px}
+ .control-card{padding:17px}
+ .viewer-card{min-height:300px;height:48dvh}
+ .presets button{padding:8px 9px}
+ .layer-list{gap:2px 8px}
+ .data-card{padding:17px}
+ .metric{gap:12px}
+ .metric strong{text-align:right}
+}
