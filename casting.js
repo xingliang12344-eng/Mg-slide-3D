@@ -25,6 +25,7 @@
   const totalOutput = document.getElementById('castingTotal');
 
   catalog.forEach(([symbol, name]) => {
+    if (symbol === 'Mg') return;
     const option = document.createElement('option');
     option.value = symbol;
     option.textContent = name + ' (' + symbol + ')';
